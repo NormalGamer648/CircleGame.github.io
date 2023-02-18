@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Circle Game</title>
+    <style>
+      #game-area {
+        width: 500px;
+        height: 500px;
+        border: 1px solid black;
+        position: relative;
+      }
+      .circle {
+        width: 2cm;
+        height: 2cm;
+        border-radius: 50%;
+        background-color: red;
+        position: absolute;
+        display: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-area">
+      <p>Press Enter to start the game.</p>
+    </div>
+    <script>
+      let score = 0;
+      let intervalTime = 750;
+      let disappearTime = 750;
+      let gameInterval;
+      let gameTimeout;
+
+      document.addEventListener("keydown", startGame);
+      document.addEventListener("touchstart", startGame);
+
+      function startGame(event) {
+        if (event.type === "keydown" && event.key !== "Enter") {
+          return;
+        }
+
+        if (event.type === "touchstart") {
+          event.preventDefault();
+        }
+
+        document.querySelector("#game-area p").style.display = "none";
+        gameInterval = setInterval(createCircle, intervalTime);
+        gameTimeout = setTimeout(endGame, 120000);
+
+        document.addEventListener("click", handleCircleClick);
+        document.addEventListener("touchstart", handleCircleClick);
+      }
+
+      function createCircle() {
+        const gameArea = document.querySelector("#game-area");
+        const circle = document.createElement("div");
+        circle.classList.add("circle");
+        circle.style.left = `${Math.floor(
+          Math.random() * (gameArea.offsetWidth - circle.offsetWidth)
+        )}px`;
+        circle.style.top = `${Math.floor(
+          Math.random() * (gameArea.offsetHeight - circle.offsetHeight)
+        )}px`;
+        gameArea.appendChild(circle);
+        circle.style.display = "block";
+        setTimeout(() => {
+          circle.style.display = "none";
+          gameArea.removeChild(circle);
+        }, disappearTime);
+      }
+
+      function handleCircleClick(event) {
+        if (event.target.classList.contains("circle")) {
+          score++;
+          event.target.style.display = "none";
+          const gameArea = document.querySelector("#game-area");
+          gameArea.removeChild(event.target);
+        }
+      }
+
+      function endGame() {
+        clearInterval(gameInterval);
+        clearTimeout(gameTimeout);
+        document.removeEventListener("click", handleCircleClick);
+        document.removeEventListener("touchstart", handleCircleClick);
+
+        const gameArea = document.querySelector("#game-area");
+        gameArea.innerHTML = `
+          <h2>Game Over!</h2>
+          <p>Your score: ${score}</p>
+        `;
+      }
+
+      setInterval(() => {
+        intervalTime *= 0.98;
+        disappearTime *= 0.98;
+      }, 5000);
+    </script>
+  </body>
+</html>
